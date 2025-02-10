@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+
+# Package lock file (if you have one, good practice to include)
+package-lock.json
+yarn.lock
+
+# Logs or temp files (if your backend generates any)
+# *.log
+# temp/

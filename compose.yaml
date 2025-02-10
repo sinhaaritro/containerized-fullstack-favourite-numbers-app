@@ -1,0 +1,63 @@
+version: '3.8'
+services:
+  frontend:
+    image: node:18-alpine
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run build && npx serve -s build -l 3000"
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_BACKEND_API_URL: $REACT_APP_BACKEND_API_URL # Use variable from .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"] # Check frontend root path
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  backend:
+    image: node:18-alpine
+    working_dir: /app
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+    command: sh -c "npm install && node index.js"
+    environment:
+      PGHOST: $PGHOST
+      PGUSER: $PGUSER
+      PGPASSWORD: $PGPASSWORD
+      PGDATABASE: $PGDATABASE
+      PGPORT: $PGPORT
+    depends_on:
+      - db # Backend depends on db to be running
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"] # Check backend health endpoint
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s # Give backend more time to start including DB connection
+
+  db:
+    image: postgres:15-alpine # Using postgres alpine image
+    ports:
+      - "5432:5432" # Expose postgres port on host 5432 (optional for local access, good for debugging)
+    environment: # Keep this section, but now it will read from .env
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: $POSTGRES_DB
+    volumes:
+      - db_data:/var/lib/postgresql/data/ # Persist database data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"] # Check postgres readiness
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s # Give DB more time to initialize
+
+volumes:
+  db_data: # Named volume for postgres data persistence

@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+
+# Package lock file (if you have one, though not in our current setup, good practice to include)
+package-lock.json
+yarn.lock
+
+# Logs or temp files (if any, React apps usually don't generate these by default in the frontend folder)
