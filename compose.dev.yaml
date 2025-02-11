@@ -7,7 +7,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
-    command: sh -c "npm install && npm start" # Use npm start for development server
+    command: sh -c "npm install && npm start" 
     environment:
       REACT_APP_BACKEND_API_URL: http://localhost:3001
     depends_on:
