@@ -20,7 +20,7 @@ services:
       - "3001:3001"
     volumes:
       - ./backend:/app
-    command: sh -c "npm install && nodemon index.js" # Use nodemon for development
+    command: sh -c "npm install && npx nodemon index.js" # Use nodemon for development
     environment:
       PGHOST: db
       PGUSER: postgres
