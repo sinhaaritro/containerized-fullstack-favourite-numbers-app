@@ -7,13 +7,13 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
-    command: sh -c "npm install && npm run build && npx serve -s build -l 3000"
+    command: sh -c "npm install && npm run build && npx serve -s build -l 3000" # Production build and serve
+    environment:
+      REACT_APP_BACKEND_API_URL: http://localhost:3001
     depends_on:
       - backend
-    environment:
-      REACT_APP_BACKEND_API_URL: $REACT_APP_BACKEND_API_URL # Use variable from .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"] # Check frontend root path
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -26,13 +26,13 @@ services:
       - "3001:3001"
     volumes:
       - ./backend:/app
-    command: sh -c "npm install && node index.js"
+    command: sh -c "npm install && node index.js" # Run backend directly in production
     environment:
-      PGHOST: $PGHOST
-      PGUSER: $PGUSER
-      PGPASSWORD: $PGPASSWORD
-      PGDATABASE: $PGDATABASE
-      PGPORT: $PGPORT
+      PGHOST: db
+      PGUSER: postgres
+      PGPASSWORD: password
+      PGDATABASE: app_db
+      PGPORT: 5432
     depends_on:
       - db # Backend depends on db to be running
     healthcheck:
@@ -52,6 +52,7 @@ services:
       POSTGRES_DB: $POSTGRES_DB
     volumes:
       - db_data:/var/lib/postgresql/data/ # Persist database data
+      - ./db-init:/docker-entrypoint-initdb.d/ # Mount init script directory
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"] # Check postgres readiness
       interval: 10s
